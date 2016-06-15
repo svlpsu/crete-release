@@ -1,0 +1,78 @@
+#include "bct-replay/qemu_globals.h"
+//TODO: xxx remove the direct dependency on qemu from klee
+#include "i386-softmmu/config-target.h"
+
+#include <llvm/Support/DynamicLibrary.h>
+
+#include "memory.h"
+
+extern "C" {
+
+#if !defined(CRETE_QEMU10)
+//assignment is arbitrary here. The corresponding value could be dumped from S2E
+int qemu_loglevel = 0;
+struct _IO_FILE *qemu_logfile;
+#else
+int loglevel = 0;
+struct _IO_FILE *logfile;
+
+const uint8_t parity_table[256] = {
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0x0004, 0, 0, 0x0004, 0, 0x0004, 0x0004, 0,
+    0, 0x0004, 0x0004, 0, 0x0004, 0, 0, 0x0004,
+};
+
+/* modulo 9 table */
+const uint8_t rclb_table[32] = {
+    0, 1, 2, 3, 4, 5, 6, 7,
+    8, 0, 1, 2, 3, 4, 5, 6,
+    7, 8, 0, 1, 2, 3, 4, 5,
+    6, 7, 8, 0, 1, 2, 3, 4,
+};
+
+/* modulo 17 table */
+const uint8_t rclw_table[32] = {
+    0, 1, 2, 3, 4, 5, 6, 7,
+    8, 9,10,11,12,13,14,15,
+   16, 0, 1, 2, 3, 4, 5, 6,
+    7, 8, 9,10,11,12,13,14,
+};
+
+CPUWriteMemoryFunc *io_mem_write[512][4];
+CPUReadMemoryFunc *io_mem_read[512][4];
+
+void *io_mem_opaque[512];
+
+int use_icount = 0;
+#endif
+} // extern "C"
+

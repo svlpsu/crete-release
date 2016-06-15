@@ -1,0 +1,12 @@
+# !bin/bash
+# Instructions on updating op_helper.bc:
+# 1. Recompile QEMU without --enable-tcg-interpreter (interpreter is necessary for the present implementation)
+# 2. Uncomment the following executable lines and run this script
+# 3. Recompile QEMU with --enable-tcg-interpreter
+#cd i386-softmmu
+  echo "  LLVMCC    op_helper.bc" && clang -I../slirp -I. -I../ -I../fpu -I../linux-headers -I../tcg -I../tcg/i386 -Werror -fPIE -DPIE -m64 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -Wstrict-prototypes -Wredundant-decls -Wall -Wundef -Wwrite-strings -Wmissing-prototypes -fno-strict-aliasing -I/usr/include/libpng12 -Wno-initializer-overrides -Wno-initializer-overrides -Wno-initializer-overrides -Wno-initializer-overrides -Wno-initializer-overrides -Wno-initializer-overrides -DHAS_AUDIO -DHAS_AUDIO_CHOICE -Wno-initializer-overrides -DTARGET_PHYS_ADDR_BITS=64 -I../linux-headers -I.. -I../target-i386 -DNEED_CPU_H -pthread -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I../include -I/usr/include/p11-kit-1 -I/usr/include/libpng12 -Wno-unused-function -Wno-implicit-function-declaration -Wno-missing-prototypes -DHAVLICEK_LLVM -MMD -MP -MT op_helper.bc -MF ./op_helper.d -O2 -march=native -c -DS2E_LLVM_LIB -DCRETE_CONFIG -Wno-invalid-noreturn -emit-llvm -o op_helper.bc ../target-i386/op_helper.c
+
+ echo "  LLVMCC    crete_helper.bc" && clang -I../slirp -I. -I../ -I../fpu -I../linux-headers -I../tcg -I../tcg/i386 -Werror -fPIE -DPIE -m64 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -Wstrict-prototypes -Wredundant-decls -Wall -Wundef -Wwrite-strings -Wmissing-prototypes -fno-strict-aliasing -I/usr/include/libpng12 -Wno-initializer-overrides -Wno-initializer-overrides -Wno-initializer-overrides -Wno-initializer-overrides -Wno-initializer-overrides -Wno-initializer-overrides -DHAS_AUDIO -DHAS_AUDIO_CHOICE -Wno-initializer-overrides -DTARGET_PHYS_ADDR_BITS=64 -I../linux-headers -I.. -I../target-i386 -DNEED_CPU_H -pthread -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I../include -I/usr/include/p11-kit-1 -I/usr/include/libpng12 -Wno-unused-function -MMD -MP -MT crete_helper.bc -MF ./crete_helper.d -O2 -march=native -c -DS2E_LLVM_LIB -DCRETE_CONFIG -emit-llvm -Wno-missing-prototypes -Wno-invalid-noreturn -o crete_helper.bc ../runtime-dump/crete_helper.c
+
+## A quick hack to avoid the build of op_helper.bc as it's required to be built when the qemu is built without flag "--enable-tcg-interpreter"
+#cp op_helper.bc crete_helper.bc i386-softmmu/
