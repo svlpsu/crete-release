@@ -494,6 +494,8 @@ struct KleeFSM_::prepare
             bp::context ctx;
             ctx.work_directory = dir.string();
             ctx.environment = bp::self::get_environment();
+            ctx.stdout_behavior = bp::capture_stream();
+            ctx.stderr_behavior = bp::redirect_stream_to_stdout();
 
             {
                 auto exe = std::string{};
@@ -533,7 +535,11 @@ struct KleeFSM_::prepare
 
                 if(!process::is_exit_status_zero(status))
                 {
-                    // TODO: rdbuf into exception
+                    std::ostringstream oss;
+                    oss << proc.get_stdout().rdbuf();
+
+                    BOOST_THROW_EXCEPTION(SVMException{} << err::process_exit_status{exe}
+                                                         << err::msg{oss.str()});
                     BOOST_THROW_EXCEPTION(SVMException{} << err::process_exit_status{exe});
                 }
 
@@ -584,7 +590,11 @@ struct KleeFSM_::prepare
 
                 if(!process::is_exit_status_zero(status))
                 {
-                    BOOST_THROW_EXCEPTION(SVMException{} << err::process_exit_status{exe});
+                    std::ostringstream oss;
+                    oss << proc.get_stdout().rdbuf();
+
+                    BOOST_THROW_EXCEPTION(SVMException{} << err::process_exit_status{exe}
+                                                         << err::msg{oss.str()});
                 }
             }
         }

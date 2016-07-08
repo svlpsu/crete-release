@@ -1,4 +1,4 @@
-#include "utility.h"
+#include <crete/hook/utility.h>
 
 // TODO: (low) copying byte-by-byte is inefficient.
 void crete_symfile_memcpy(void* dst, const void* src, size_t size)

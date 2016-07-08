@@ -1,7 +1,0 @@
-harness_config.cpp
-main.cpp
-run_config.cpp
-run_config.h
-runner.cpp
-runner.h
-runner_fsm.cpp
