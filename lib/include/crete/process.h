@@ -2,6 +2,7 @@
 #define CRETE_PROCESS_H
 
 #include <boost/process/status.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -40,7 +41,7 @@ bool is_running(pid_t pid)
 
     struct stat s;
 
-    return stat(("/proc/" + std::to_string(pid)).c_str(), &s) != -1;
+    return stat(("/proc/" + boost::lexical_cast<std::string>(pid)).c_str(), &s) != -1;
 }
 
 /**

@@ -8,7 +8,7 @@
 #include <stddef.h>
 #include <fcntl.h>
 
-#include "hook.h"
+#include <crete/hook/hook.h>
 #include "klee/fd.h"
 
 #ifdef __cplusplus

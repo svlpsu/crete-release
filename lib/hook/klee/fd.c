@@ -28,7 +28,7 @@
 #include <termios.h>
 #include <sys/select.h>
 
-#include "utility.h"
+#include <crete/hook/utility.h>
 
 /* #define DEBUG */
 
