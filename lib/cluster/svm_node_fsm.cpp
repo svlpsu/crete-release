@@ -531,16 +531,20 @@ struct KleeFSM_::prepare
                 auto args = std::vector<std::string>{fs::absolute(exe).string()}; // It appears our modified QEMU requires full path in argv[0]...
 
                 auto proc = bp::launch(exe, args, ctx);
+
+                auto& pistream = proc.get_stdout();
+                std::stringstream ss;
+                std::string line;
+
+                while(std::getline(pistream, line))
+                    ss << line;
+
                 auto status = proc.wait();
 
                 if(!process::is_exit_status_zero(status))
                 {
-                    std::ostringstream oss;
-                    oss << proc.get_stdout().rdbuf();
-
                     BOOST_THROW_EXCEPTION(SVMException{} << err::process_exit_status{exe}
-                                                         << err::msg{oss.str()});
-                    BOOST_THROW_EXCEPTION(SVMException{} << err::process_exit_status{exe});
+                                                         << err::msg{ss.str()});
                 }
 
                 fs::rename(dir / "dump_llvm_offline.bc",
@@ -568,11 +572,20 @@ struct KleeFSM_::prepare
                                                      "-o=" + std::string("main_function.bc")};
 
                 auto proc = bp::launch(exe, args, ctx);
+
+                auto& pistream = proc.get_stdout();
+                std::stringstream ss;
+                std::string line;
+
+                while(std::getline(pistream, line))
+                    ss << line;
+
                 auto status = proc.wait();
 
                 if(!process::is_exit_status_zero(status))
                 {
-                    BOOST_THROW_EXCEPTION(SVMException{} << err::process_exit_status{exe});
+                    BOOST_THROW_EXCEPTION(SVMException{} << err::process_exit_status{exe}
+                                                         << err::msg{ss.str()});
                 }
             }
 
@@ -586,15 +599,20 @@ struct KleeFSM_::prepare
                                                      "run.bc"};
 
                 auto proc = bp::launch(exe, args, ctx);
+
+                auto& pistream = proc.get_stdout();
+                std::stringstream ss;
+                std::string line;
+
+                while(std::getline(pistream, line))
+                    ss << line;
+
                 auto status = proc.wait();
 
                 if(!process::is_exit_status_zero(status))
                 {
-                    std::ostringstream oss;
-                    oss << proc.get_stdout().rdbuf();
-
                     BOOST_THROW_EXCEPTION(SVMException{} << err::process_exit_status{exe}
-                                                         << err::msg{oss.str()});
+                                                         << err::msg{ss.str()});
                 }
             }
         }
